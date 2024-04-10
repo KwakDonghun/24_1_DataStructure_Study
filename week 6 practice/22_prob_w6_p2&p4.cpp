@@ -27,7 +27,7 @@ public:
 	vector<Node*> nodelist;
 	Node* root;
 	Tree() {
-		Node* root = new Node(1, 0);
+		root = new Node(1, 0);
 		nodelist.push_back(root);
 	}
 	Node* findnode(int val) {
@@ -57,7 +57,7 @@ public:
 		}
 		for (auto node : delnode->children) {
 			delnode->parent->children.push_back(node);
-			node->parent = delnode->parent; // ±î¸ÔÀ½ ÁÖÀÇ
+			node->parent = delnode->parent; // Â±Ã®Â¸Ã”Ã€Â½ ÃÃ–Ã€Ã‡
 		}
 		for (int i = 0; i < delnode->parent->children.size(); i++) {
 			if (delnode->parent->children[i] == delnode) {
