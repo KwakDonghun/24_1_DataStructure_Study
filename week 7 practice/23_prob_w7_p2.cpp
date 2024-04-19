@@ -4,107 +4,89 @@
 
 using namespace std;
 
-//23 p2
 struct node {
-	node* parent;
-	vector <node*> childlist;
+	int size;
 	int depth;
 	int folder_num;
-	int value;
-	int value_sum;
-	node(int num, node* p) {
-		value = value_sum = 0;
-		parent = p;
-		folder_num = num;
-		depth = parent->depth + 1;
+	int sum;
+	node* parent;
+	vector<node*> childlist;
+	node(int folder, node* parent) {
+		this->folder_num = folder;
+		this->parent = parent;
+		this->depth = parent->depth + 1;
+		this->sum = 0;
+		this->size = 0;
 	}
-	node(int num, int dep) {
-		parent = NULL;
-		depth = dep;
-		value = value_sum = 0;
-		folder_num = num;
+	node(int folder, int depth) {
+		this->folder_num = folder;
+		this->parent = NULL;
+		this->depth = depth;
+		this->sum = 0;
+		this->size = 0;
 	}
 };
 
 class Tree {
 public:
-	vector <node*> nodelist;
+	int count;
 	node* root;
+	vector<node*> nodelist;
 	node* find(int data) {
 		for (auto i : nodelist)
-			if (i->folder_num == data)
+			if (data == i->folder_num)
 				return i;
 		return NULL;
 	}
 	Tree() {
 		root = new node(1, 0);
 		nodelist.push_back(root);
+		count = 0;
 	}
-	void insertnode(int par_data, int data) {
-		node* parentNode = find(par_data);
-		if (parentNode == NULL || find(data) != NULL)
+	void insertnode(int pardata, int num) {
+		node* parent = find(pardata);
+		if (parent == NULL || find(num) != NULL)
 			return;
-		node* newnode = new node(data, parentNode);
+		node* newnode = new node(num, parent);
+		parent->childlist.push_back(newnode);
 		nodelist.push_back(newnode);
-		parentNode->childlist.push_back(newnode);
 	}
-	void deletenode(int data) {
-		if (find(data) == NULL)
+	void insertsize(int folder_num, int size) {
+		if (find(folder_num) == NULL)
 			return;
-		node* delnode = find(data);
-		vector <node*>& delparchild = delnode->parent->childlist;
-		for (auto i : delnode->childlist) {
-			delparchild.push_back(i);
-			i->parent = delnode->parent;
-		}
-		for (int i = 0; i < delparchild.size(); i++) {
-			if (delparchild[i] == delnode) {
-				delparchild.erase(delparchild.begin() + i);
-				break;
-			}
-		}
-		for (int i = 0; i < nodelist.size(); i++) {
-			if (nodelist[i] == delnode) {
-				nodelist.erase(nodelist.begin() + i);
-				break;
-			}
-		}
-		delete delnode;
+		find(folder_num)->size = size;
 	}
-	void postorder_sum(node* curnode) {
+	void postorder_sum(node* curnode, int C) {
 		for (auto i : curnode->childlist) {
-			postorder_sum(i);
-			curnode->value_sum += i->value_sum;
+			postorder_sum(i, C);
+			curnode->sum += i->sum;
 		}
-		curnode->value_sum += curnode->value;
-	}
-	void file_size(int num, int size) {
-		if (find(num) == NULL)
-			return;
-		find(num)->value = size;
-	}
-	void postorder_search(int standard_size, node* curnode) {
-		for (auto i : curnode->childlist)
-			postorder_search(standard_size, i);
-		if (curnode->value_sum >= standard_size)
+		curnode->sum += curnode->size;
+		if (curnode->sum > C) {
 			cout << curnode->folder_num << ' ';
+			count++;
+		}
 	}
+
 };
+//23 p2
 int main() {
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
 	cout.tie(NULL);
-	int args1, args2, node_count, standard_size;
+
+	int N, C, args1, args2;
+	cin >> N >> C;
 	Tree tree;
-	cin >> node_count >> standard_size;
-	for (int i = 1; i < node_count; i++) {
+	for (int i = 0; i < N - 1; i++) {
 		cin >> args1 >> args2;
 		tree.insertnode(args1, args2);
 	}
-	for (int i = 0; i < node_count; i++) {
+	for (int i = 0; i < N; i++) {
 		cin >> args1 >> args2;
-		tree.file_size(args1, args2);
+		tree.insertsize(args1, args2);
 	}
-	tree.postorder_sum(tree.root);
-	tree.postorder_search(standard_size,tree.root);
+	tree.postorder_sum(tree.root, C);
+	if (tree.count == 0)
+		cout << -1;
 }
