@@ -91,7 +91,7 @@ public:
 			else
 				succpar->right = succ->right;
 			delnode->val = succ->val;
-			delnode = succ; //여기서 delnode 주소를 succ로 바꾸는 거라 원래 delnode의 값이나 parent 같은건 상관 없는 건가??
+			delnode = succ; 
 		}
 		size--;
 		delete delnode;
