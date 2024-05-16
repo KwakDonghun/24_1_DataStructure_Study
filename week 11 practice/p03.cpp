@@ -7,53 +7,50 @@ struct node {
 	node* right;
 	node* left;
 	int val;
-
 	node() {
-		parent = right = left = NULL;
 		val = 0;
+		parent = right = left = NULL;
 	}
 	node(int v) {
-		parent = right = left = new node();
 		val = v;
+		parent = right = left = new node();
 	}
 };
 
-class Bst {
+class BST {
 public:
-	node* root;
 	int size;
+	node* root;
 	int count;
-	Bst() {
+	BST() {
+		size = count = 0;
 		root = new node();
-		size = 0;
-		count = 0;
 	}
-	bool empty() { return(size == 0); }
-	node* find(int val) {  
+	bool empty() { return (size == 0); }
+	node* find(int x) {
 		if (empty()) return NULL;
 		node* curnode = root;
-		while (curnode->val != val) {
-			if (curnode->val > val) {
+		while (curnode->val != x) {
+			if (curnode->val > x) {
 				if (curnode->left->val == 0)
-					return curnode;
+					break;
 				curnode = curnode->left;
 			}
-			if (curnode->val < val) {
+			else {
 				if (curnode->right->val == 0)
-					return curnode;
+					break;
 				curnode = curnode->right;
 			}
 		}
 		return curnode;
 	}
-	void insert(int v) {
-		node* newnode = new node(v);
-		if (empty()) {
+	void insert(int k) {
+		node* newnode = new node(k);
+		if (empty())
 			root = newnode;
-		}
 		else {
-			node* parnode = find(v);
-			if (v < parnode->val)
+			node* parnode = find(k);
+			if (parnode->val > k)
 				parnode->left = newnode;
 			else
 				parnode->right = newnode;
@@ -61,12 +58,15 @@ public:
 		}
 		size++;
 	}
-	int LeftSubtreeCount(node* n) {
+	int RightSubtreeCount(int k) {
+		node* curnode = find(k);
 		count = 0;
-		if(n->left->val!=0)
-			inorder(n->left);
+		if (curnode->right->val != 0) {
+			inorder(curnode->right);
+		}
 		return count;
 	}
+
 	void inorder(node* n) {
 		if (n->left->val != 0)
 			inorder(n->left);
@@ -77,18 +77,19 @@ public:
 };
 
 int main() {
-	ios_base::sync_with_stdio(false);
-	cin.tie(NULL);
-	cout.tie(NULL);
-	Bst bst;
 	int N, M, input, args1, args2;
+	BST bst;
 	cin >> N >> M;
-	for (int i = 0; i < N; i++) {
+	while (N--) {
 		cin >> input;
 		bst.insert(input);
 	}
 	while (M--) {
 		cin >> args1 >> args2;
-		cout << bst.LeftSubtreeCount(bst.find(args1)) + bst.LeftSubtreeCount(bst.find(args2)) << '\n';
+		int result = bst.RightSubtreeCount(args1) - bst.RightSubtreeCount(args2);
+		if (result > 0)
+			cout << result << '\n';
+		else
+			cout << -result << '\n';
 	}
 }
