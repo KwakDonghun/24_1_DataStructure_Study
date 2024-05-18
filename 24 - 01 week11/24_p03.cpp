@@ -3,16 +3,16 @@
 using namespace std;
 
 struct node {
-	int val;
 	node* parent;
 	node* left;
 	node* right;
+	int val;
 	node() {
-		val = 0;
 		parent = left = right = NULL;
+		val = 0;
 	}
-	node(int v) {
-		val = v;
+	node(int val) {
+		this->val = val;
 		parent = left = right = new node;
 	}
 };
@@ -20,18 +20,37 @@ struct node {
 class BST {
 public:
 	node* root;
-	int size, count;
+	int size;
+	int count;
 	BST() {
+		count = size = 0;
 		root = new node;
-		size = count = 0;
 	}
 	bool empty() { return (size == 0); }
+	node* find(int v) {
+		if (empty()) return nullptr;
+		node* curnode = root; 
+		while (curnode->val != v) {
+			count++;
+			if (curnode->val > v) {
+				if (curnode->left->val == 0)
+					break;
+				curnode = curnode->left;
+			}
+			else {
+				if (curnode->right->val == 0)
+					break;
+				curnode = curnode->right;
+			}
+		}
+		return curnode;
+	}
 	void search(int v) {
-		count = 0;
 		if (empty()) {
-			cout << "empty\n";
+			cout << "empty\n"; 
 			return;
 		}
+		count = 0;
 		node* curnode = root;
 		while (curnode->val != v) {
 			count++;
@@ -50,63 +69,43 @@ public:
 			count++;
 		cout << count << '\n';
 	}
-	node* find(int v) {
-		if (empty()) return NULL;
-		node* curnode = root;
-		while (curnode->val != v) {
-			count++;
-			if (curnode->val > v) {
-				if (curnode->left->val == 0)
-					break;
-				curnode = curnode->left;
-			}
-			else {
-				if (curnode->right->val == 0)
-					break;
-				curnode = curnode->right;
-			}
-		}
-		return curnode;
-	}
-	void insert(int v) {
+	void insert(int k) {
 		count = 0;
-		node* curnode = new node(v);
+		node* newnode = new node(k);
 		if (empty())
-			root = curnode;
+			root = newnode;
 		else {
-			node* parnode = find(v);
-			if (parnode->val > v)
-				parnode->left = curnode;
+			node* parnode = find(k);
+			if (parnode->val > k)
+				parnode->left = newnode;
 			else
-				parnode->right = curnode;
-			curnode->parent = parnode;
+				parnode->right = newnode;
+			newnode->parent = parnode;
 		}
 		size++;
 		cout << count << '\n';
 	}
-	
-	void parent(int x) {
-		node* curnode = find(x);
-		if (empty() || curnode->val != x) {
+	void parent(int k) {
+		node* curnode = find(k);
+		if (empty() || curnode->val != k) {
 			cout << -1 << '\n';
 			return;
 		}
-		if (curnode->parent->val == 0) 
-			cout << -2 << '\n';
-		else 
-			cout << curnode->parent->val << '\n';
-	}
-	
-	void child(int x) {
-		node* curnode = find(x);
-		if (empty() || curnode->val != x) {
-			cout << -1 << '\n';
-			return;
-		}
-		if (curnode->left->val == 0)
+		if (curnode->parent->val == 0)
 			cout << -2 << '\n';
 		else
-			cout << curnode->left->val << '\n';
+			cout << curnode->parent->val << '\n';
+	}
+	void child(int k) {
+		node* curnode = find(k);
+		if (empty() || curnode->val != k ) {
+			cout << -1 << '\n';
+			return;
+		}
+		if (curnode->right->val == 0)
+			cout << -2 << '\n';
+		else
+			cout << curnode->right->val << '\n';
 	}
 };
 
@@ -117,26 +116,22 @@ int main() {
 
 	int T, N, input;
 	string cmd;
-	
 	cin >> T;
 	while (T--) {
-		BST bst;
 		cin >> N;
+		BST bst;
 		while (N--) {
 			cin >> cmd;
 			if (cmd == "insert") {
 				cin >> input;
 				bst.insert(input);
-			}
-			else if (cmd == "search") {
+			}else if (cmd == "search") {
 				cin >> input;
 				bst.search(input);
-			}
-			else if (cmd == "parent") {
+			}else if (cmd == "parent") {
 				cin >> input;
 				bst.parent(input);
-			}
-			else if (cmd == "child") {
+			}else if (cmd == "child") {
 				cin >> input;
 				bst.child(input);
 			}

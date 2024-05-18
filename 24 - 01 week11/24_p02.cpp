@@ -20,41 +20,18 @@ struct node {
 class BST {
 public:
 	node* root;
-	int size, count;
+	int size, idx, count;
+	int* arr;
 	BST() {
 		root = new node;
-		size = count = 0;
+		idx = size = count = 0;
+		arr = new int[10001];
 	}
 	bool empty() { return (size == 0); }
-	void search(int v) {
-		count = 0;
-		if (empty()) {
-			cout << "empty\n";
-			return;
-		}
-		node* curnode = root;
-		while (curnode->val != v) {
-			count++;
-			if (curnode->val > v) {
-				if (curnode->left->val == 0)
-					break;
-				curnode = curnode->left;
-			}
-			else {
-				if (curnode->right->val == 0)
-					break;
-				curnode = curnode->right;
-			}
-		}
-		if (curnode->val == v)
-			count++;
-		cout << count << '\n';
-	}
 	node* find(int v) {
 		if (empty()) return NULL;
 		node* curnode = root;
 		while (curnode->val != v) {
-			count++;
 			if (curnode->val > v) {
 				if (curnode->left->val == 0)
 					break;
@@ -69,7 +46,6 @@ public:
 		return curnode;
 	}
 	void insert(int v) {
-		count = 0;
 		node* curnode = new node(v);
 		if (empty())
 			root = curnode;
@@ -82,31 +58,52 @@ public:
 			curnode->parent = parnode;
 		}
 		size++;
-		cout << count << '\n';
 	}
-	
-	void parent(int x) {
-		node* curnode = find(x);
-		if (empty() || curnode->val != x) {
-			cout << -1 << '\n';
-			return;
+	void remove(int v) {
+		if (empty()) return;
+		node* delnode = find(v);
+		node* parnode = delnode->parent;
+		if (delnode->left->val == 0 || delnode->right->val == 0) {
+			node* child = (delnode->left->val == 0) ? delnode->right : delnode->left;
+			if (delnode == root)
+				this->root = child;
+			else {
+				if (parnode->left == delnode) {
+					parnode->left = child;
+				}
+				else if (parnode->right == delnode) {
+					parnode->right = child;
+				}
+				child->parent = parnode;
+			}
 		}
-		if (curnode->parent->val == 0) 
-			cout << -2 << '\n';
-		else 
-			cout << curnode->parent->val << '\n';
+		else {
+			node* succ = delnode->right;
+			while (succ->left->val != 0)
+				succ = succ->left;
+			node* succpar = succ->parent;
+			if (succpar->left == succ)
+				succpar->left = succ->right;
+			else
+				succpar->right = succ->right;
+			succ->right->parent = succpar;
+			delnode->val = succ->val;
+			delnode = succ;
+		}
+		size--;
+		delete delnode;
 	}
-	
-	void child(int x) {
-		node* curnode = find(x);
-		if (empty() || curnode->val != x) {
-			cout << -1 << '\n';
-			return;
-		}
-		if (curnode->left->val == 0)
-			cout << -2 << '\n';
-		else
-			cout << curnode->left->val << '\n';
+	int max(int k) {
+		idx = 0;
+		inorder(root);
+		return arr[size-k];
+	}
+	void inorder(node* n) {
+		if (n->left->val != 0)
+			inorder(n->left);
+		arr[idx++] = n->val;
+		if (n->right->val != 0)
+			inorder(n->right);
 	}
 };
 
@@ -117,28 +114,23 @@ int main() {
 
 	int T, N, input;
 	string cmd;
-	
 	cin >> T;
 	while (T--) {
-		BST bst;
 		cin >> N;
+		BST bst;
 		while (N--) {
 			cin >> cmd;
 			if (cmd == "insert") {
 				cin >> input;
 				bst.insert(input);
 			}
-			else if (cmd == "search") {
+			else if (cmd == "max") {
 				cin >> input;
-				bst.search(input);
+				cout << bst.max(input) << '\n';
 			}
-			else if (cmd == "parent") {
+			else if (cmd == "delete") {
 				cin >> input;
-				bst.parent(input);
-			}
-			else if (cmd == "child") {
-				cin >> input;
-				bst.child(input);
+				bst.remove(input);
 			}
 		}
 	}
