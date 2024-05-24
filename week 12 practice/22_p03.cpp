@@ -7,17 +7,13 @@ using namespace std;
 #define available 1
 #define is_item 2
 
-
-
 class entry {
 public:
-	int key;
+	int key, valid;
 	string value;
-	int valid;
 	entry() {
-		key = 0;
+		key = valid = no_item;
 		value = "";
-		valid = no_item;
 	}
 	entry(int k, string s) {
 		key = k;
@@ -33,69 +29,73 @@ class hashtable {
 public:
 	entry* table;
 	int capacity;
-	int hash(int idx) {
-		return idx % capacity;
+	int M;
+	int hash1(int k) {
+		return k % capacity;
 	}
-	hashtable(int n) {
-		capacity = n;
+	int hash2(int k) {
+		return M - (k % M);
+	}
+	int hash(int k, int j) {
+		return (hash1(k) + j * hash2(k)) % capacity;
+	}
+	hashtable(int N, int M) {
+		this->M = M;
+		capacity = N;
 		table = new entry[capacity];
 	}
 	void put(int k, string s) {
-		int idx = hash(k);
+		int idx = hash1(k);
 		int cnt = 1;
-		while (table[idx].valid == is_item && cnt <= capacity) {
-			idx = hash(idx + 1);
-			cnt++;
-		}
-		table[idx].key = k;
-		table[idx].value = s;
-		table[idx].valid = is_item;
-		cout << cnt << '\n';
-
+		while (table[idx].valid == is_item && cnt <= capacity)
+			idx = hash(k, cnt++);
+		entry* newent = new entry(k, s);
+		table[idx] = *newent;
+		cout << cnt <<'\n';
 	}
 	void erase(int k) {
-		int idx = hash(k);
+		int idx = hash1(k);
 		int cnt = 1;
 		while (table[idx].valid != no_item && cnt <= capacity) {
-			if (table[idx].key == k&&table[idx].valid == is_item) {
+			if (table[idx].key == k && table[idx].valid == is_item) {
 				cout << table[idx].value << '\n';
 				table[idx].valid = available;
 				return;
 			}
-			idx = hash(idx + 1);
-			cnt++;
+			idx = hash(k, cnt++);
 		}
 		cout << "None\n";
 	}
-	string find(int k) {
-		int idx = hash(k);
+	void find(int k) {
+		int idx = hash1(k);
 		int cnt = 1;
 		while (table[idx].valid != no_item && cnt <= capacity) {
 			if (table[idx].key == k && table[idx].valid == is_item) {
-				return table[idx].value;
+				cout << table[idx].value << '\n';
+				return;
 			}
-			idx = hash(idx + 1);
-			cnt++;
+			idx = hash(k, cnt++);
 		}
-		return "None";
+		cout << "None\n";
 	}
-	int vacant() {
+	void vacant() {
 		int cnt = 0;
 		for (int i = 0; i < capacity; i++)
 			if (table[i].valid != is_item)
 				cnt++;
-		return cnt;
+		cout << cnt << "\n";
 	}
 };
+
 int main() {
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
 	cout.tie(NULL);
 
-	int T, N, k;
-	cin >> T >> N;
+	int T, N, M, k;
 	string cmd, s;
-	hashtable* hs = new hashtable(N);
+	cin >> T >> N >> M;
+	hashtable* hs = new hashtable(N, M);
 	while (T--) {
 		cin >> cmd;
 		if (cmd == "put") {
@@ -108,10 +108,10 @@ int main() {
 		}
 		else if (cmd == "find") {
 			cin >> k;
-			cout << hs->find(k) << '\n';
+			hs->find(k);
 		}
 		else if (cmd == "vacant") {
-			cout << hs->vacant() << '\n';
+			hs->vacant();
 		}
 	}
 }
