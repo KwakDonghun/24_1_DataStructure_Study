@@ -1,27 +1,28 @@
 #include <iostream>
 #include <vector>
+#include <queue>
 
 using namespace std;
 
-vector<int> graph[1001];
-int visit[1001];
-int cnt;
+vector<int> graph[101];
+bool visit[101];
+int Min = 101;
 
-void insert(int s, int d) {
-	graph[s].push_back(d);
-	graph[d].push_back(s);
+void insert(int v1, int v2) {
+	graph[v1].push_back(v2);
+	graph[v2].push_back(v1);
 }
 void dfs(int v) {
 	if (visit[v]) return;
-	visit[v] = ++cnt;
-	if (visit[v] % 2 == 1) cout << v << ' ';
+	if (Min > v) Min = v;
+	visit[v] = true;
 	for (int adj : graph[v])
 		dfs(adj);
 }
 void reset(int n) {
-	cnt = 0;
+	Min = 101;
 	for (int i = 1; i <= n; i++)
-		visit[i] = 0;
+		visit[i] = false;
 }
 
 int main() {
@@ -29,19 +30,21 @@ int main() {
 	cin.tie(NULL);
 	cout.tie(NULL);
 
-	int t, n, m, v1, v2;
+	int t, n, m, k, v1, v2;
 	cin >> t;
 	while (t--) {
-		cin >> n >> m;
+		cin >> n >> m >> k;
 		while (m--) {
 			cin >> v1 >> v2;
 			insert(v1, v2);
 		}
-		dfs(1);
-		cout << '\n';
+		while (k--) {
+			cin >> v1;
+			dfs(v1);
+			cout << Min << '\n';
+			reset(n);
+		}
 		for (int i = 1; i <= n; i++)
 			graph[i].clear();
-		reset(n);
 	}
-	
 }

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <queue>
 
 using namespace std;
 
@@ -11,12 +12,22 @@ void insert(int s, int d) {
 	graph[s].push_back(d);
 	graph[d].push_back(s);
 }
-void dfs(int v) {
-	if (visit[v]) return;
+void bfs(int v) {
+	queue<int> q;
 	visit[v] = ++cnt;
-	if (visit[v] % 2 == 1) cout << v << ' ';
-	for (int adj : graph[v])
-		dfs(adj);
+	cout << v << ' ';
+	q.push(v);
+	while (!q.empty()) {
+		int cur = q.front();
+		q.pop();
+		for (int adj : graph[cur]) {
+			if (visit[adj]) continue;
+			visit[adj] = ++cnt;
+			if (visit[adj] % 2 == 1) cout << adj << ' ';
+			if(visit[adj])
+			q.push(adj);
+		}
+	}
 }
 void reset(int n) {
 	cnt = 0;
@@ -37,11 +48,11 @@ int main() {
 			cin >> v1 >> v2;
 			insert(v1, v2);
 		}
-		dfs(1);
+		bfs(1);
 		cout << '\n';
 		for (int i = 1; i <= n; i++)
 			graph[i].clear();
 		reset(n);
 	}
-	
+
 }
