@@ -46,30 +46,30 @@ void isAdjacent(int s, int d) {
 		cout << "True ";
 	else
 		cout << "False ";
-	if (vertex[s].second > vertex[d].second)
+	if (vertex[s].second < vertex[d].second)
 		cout << d << '\n';
-	else if (vertex[s].second < vertex[d].second)
+	else if (vertex[s].second > vertex[d].second)
 		cout << s << '\n';
 	else {
-		if (s > d)
+		if (s < d)
 			cout << d << '\n';
 		else
 			cout << s << '\n';
 	}
 }
-void minV() {
-	int min = 10001;
-	for (int i = 1; i <= 10000; i++) {
+void maxV() {
+	int max = 0;
+	for (int i = 10000; i >= 1; i--) {
 		if (vertex[i].first) {
-			min = i;
+			max = i;
 			break;
 		}
 	}
-	if (min == 10001) {
+	if (max == 0) {
 		cout << -1 << '\n';
 	}
 	else {
-		cout << min << ' ' << vertex[min].second << '\n';
+		cout << max << ' ' << vertex[max].second << '\n';
 	}
 }
 int main() {
@@ -102,8 +102,8 @@ int main() {
 			cin >> s >> d;
 			isAdjacent(s, d);
 		}
-		else if (cmd == "minVertexInfo") {
-			minV();
+		else if (cmd == "maxVertexInfo") {
+			maxV();
 		}
 	}
 }
